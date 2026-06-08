@@ -29,6 +29,14 @@
     "cli"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdvivar/bizneo-clock.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jdvivar/bizneo-clock/issues"
+  },
+  "homepage": "https://github.com/jdvivar/bizneo-clock#readme",
   "dependencies": {
     "@inquirer/prompts": "^7.2.1",
     "cheerio": "^1.0.0",
