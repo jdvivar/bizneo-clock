@@ -31,6 +31,20 @@ end if
 EOF
 }
 
+dlg_show() {
+  /usr/bin/osascript - "$1" <<'EOF' 2>/dev/null
+on run argv
+  set msg to item 1 of argv
+  try
+    tell application "System Events"
+      activate
+      display dialog msg with title "bizneo-clock (demo)" buttons {"OK"} default button "OK" with icon note giving up after 90
+    end tell
+  end try
+end run
+EOF
+}
+
 dlg_test() {
   /usr/bin/osascript <<'EOF' 2>/dev/null
 try

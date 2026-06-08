@@ -6,11 +6,24 @@ source "$DIR/config.sh"
 source "$DIR/dialogs.sh"
 
 mkdir -p "$STATE_DIR"
+BIN="${BIZNEO_CLOCK_BIN:-bizneo-clock}"
 
 if [ -f "$STATE_DIR/test-request" ]; then
   rm -f "$STATE_DIR/test-request"
   notify "bizneo-clock" "Test notification — reminders are working ✅"
   dlg_test
+  exit 0
+fi
+
+if [ -f "$STATE_DIR/demo-request" ]; then
+  rm -f "$STATE_DIR/demo-request"
+  out="$("$BIN" status 2>&1)"
+  notify "bizneo-clock" "Ran 'bizneo-clock status' from the agent ✅"
+  dlg_show "The agent just ran 'bizneo-clock status':
+
+$out
+
+(demo only — no clock action taken)"
   exit 0
 fi
 
@@ -23,8 +36,6 @@ nowepoch=$(date +%s)
 
 find "$STATE_DIR" -type f -name 'clockin-skip-*' ! -name "clockin-skip-$today" -delete 2>/dev/null || true
 find "$STATE_DIR" -type f -name 'login-notice-*' ! -name "login-notice-$today" -delete 2>/dev/null || true
-
-BIN="${BIZNEO_CLOCK_BIN:-bizneo-clock}"
 
 json="$("$BIN" status --json 2>/dev/null)" || json=""
 if [ -z "$json" ]; then
