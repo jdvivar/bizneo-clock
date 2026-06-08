@@ -1,6 +1,6 @@
 {
   "name": "bizneo-clock",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Personal CLI to clock in/out of Bizneo HR (chrono) from your terminal",
   "type": "module",
   "bin": {
