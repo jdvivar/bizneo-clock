@@ -2,7 +2,7 @@ import { load } from "cheerio";
 import type { Session } from "./config.js";
 import { BizneoClient } from "./client.js";
 
-export type ChronoStatus = "in" | "out";
+export type ChronoStatus = "working" | "paused" | "out";
 
 export interface PauseReason {
   id: string;
@@ -10,15 +10,15 @@ export interface PauseReason {
 }
 
 export interface ChronoState {
-  /** "in" = currently working (can pause/finish); "out" = not working (can clock in). */
   status: ChronoStatus;
-  clockedIn: boolean;
   /** Fresh masked CSRF token from the form. */
   csrfToken: string;
   shiftId: string;
   kind: string;
   pauseReasons: PauseReason[];
-  /** Clock-in timestamp (wall-clock string from the timer), when clocked in. */
+  /** Value to submit to resume from a break (present only when paused). */
+  resumeValue?: string;
+  /** Clock-in / pause-start timestamp (wall-clock string from the timer). */
   since?: string;
   /** IANA time zone the `since` timestamp is expressed in. */
   timeZone?: string;
@@ -51,28 +51,38 @@ export function parseChronoFragment(html: string): ChronoState {
   const kind = fields["kind"] || "rest";
 
   const pauseReasons: PauseReason[] = [];
+  let resumeValue: string | undefined;
   $('button[name="pause"]').each((_, el) => {
-    const id = $(el).attr("value");
-    if (!id) return;
-    const label = $(el).text().trim() || $(el).attr("data-gtm-action") || `Reason ${id}`;
-    pauseReasons.push({ id, label });
+    const value = $(el).attr("value");
+    if (!value) return;
+    const action = ($(el).attr("data-gtm-action") || "").toLowerCase();
+    const text = $(el).text().trim();
+    if (action.includes("stop rest") || /reanud|resume/i.test(text)) {
+      resumeValue = value;
+      return;
+    }
+    pauseReasons.push({ id: value, label: text || action || `Reason ${value}` });
   });
 
-  const hasStop = $('button[data-gtm-action="chrono stop"]').length > 0;
   const isPut = (fields["_method"] || "").toLowerCase() === "put";
-  const clockedIn = isPut || hasStop || pauseReasons.length > 0;
+  const hasStop = $('button[data-gtm-action="chrono stop"]').length > 0;
+
+  let status: ChronoStatus;
+  if (resumeValue) status = "paused";
+  else if (isPut || hasStop || pauseReasons.length > 0) status = "working";
+  else status = "out";
 
   const timerEl = $("[data-from]").first();
   const since = timerEl.attr("data-from")?.trim() || undefined;
   const timeZone = timerEl.attr("data-time-zone")?.trim() || undefined;
 
   return {
-    status: clockedIn ? "in" : "out",
-    clockedIn,
+    status,
     csrfToken,
     shiftId,
     kind,
     pauseReasons,
+    resumeValue,
     since,
     timeZone,
     fields,
@@ -128,6 +138,27 @@ export async function pause(client: BizneoClient, session: Session, state: Chron
       kind: state.kind,
       comment,
       pause: reasonId,
+    },
+    state.csrfToken,
+  );
+  return getState(client, session);
+}
+
+/** Resume from a break. PUT /chrono/{userId} with pause=<resumeValue> and no kind. */
+export async function resume(client: BizneoClient, session: Session, state: ChronoState): Promise<ChronoState> {
+  if (!state.resumeValue) {
+    throw new Error("No active break to resume.");
+  }
+  await client.submitForm(
+    "PUT",
+    `${CHRONO}/${session.userId}`,
+    {
+      _method: "put",
+      _csrf_token: state.csrfToken,
+      location_id: "",
+      shift_id: state.shiftId,
+      comment: "",
+      pause: state.resumeValue,
     },
     state.csrfToken,
   );

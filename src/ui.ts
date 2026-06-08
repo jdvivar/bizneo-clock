@@ -3,21 +3,24 @@ import type { ChronoState, PauseReason } from "./chrono.js";
 import { elapsedSeconds, formatDuration, formatClock, parseLocalTimestamp } from "./time.js";
 
 export function formatStatus(state: ChronoState): string {
-  if (!state.clockedIn) {
+  if (state.status === "out") {
     return "⚪ Clocked OUT (not working)";
   }
 
-  let line = "🟢 Clocked IN (working)";
+  const bits: string[] = [];
   if (state.since) {
     const tz = state.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const secs = elapsedSeconds(state.since, tz);
     const start = parseLocalTimestamp(state.since);
-    const bits: string[] = [];
-    if (secs != null) bits.push(`${formatDuration(secs)} elapsed`);
+    if (secs != null) bits.push(formatDuration(secs));
     if (start) bits.push(`since ${formatClock(start)}`);
-    if (bits.length) line += ` — ${bits.join(", ")}`;
   }
-  return line;
+  const suffix = bits.length ? ` — ${bits.join(", ")}` : "";
+
+  if (state.status === "paused") {
+    return `⏸ On a break${suffix}`;
+  }
+  return `🟢 Clocked IN (working)${suffix}`;
 }
 
 export function describeReasons(reasons: PauseReason[]): string {

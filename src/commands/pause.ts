@@ -6,7 +6,13 @@ export async function pauseCommand(opts: { reason?: string; comment?: string }):
   const client = await requireClient();
   let state = await getState(client, client.session);
 
-  if (!state.clockedIn) {
+  if (state.status === "paused") {
+    console.log("You're already on a break. Use `bizneo-clock resume` to get back to work.");
+    console.log(formatStatus(state));
+    await persistIfChanged(client);
+    return;
+  }
+  if (state.status === "out") {
     console.log("You're not clocked in, so there's nothing to pause. Use `bizneo-clock in` first.");
     console.log(formatStatus(state));
     await persistIfChanged(client);

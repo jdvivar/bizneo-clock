@@ -8,9 +8,9 @@ feature) straight from your terminal.
 ```bash
 bizneo-clock in       # start work
 bizneo-clock pause    # take a break (pick a reason)
-bizneo-clock in       # resume
+bizneo-clock resume   # back to work after a break
 bizneo-clock out      # finish for the day
-bizneo-clock status   # am I clocked in?
+bizneo-clock status   # am I working, on a break, or clocked out?
 ```
 
 ## Install
@@ -48,15 +48,18 @@ you to run `bizneo-clock login` again.
 | --- | --- | --- |
 | `bizneo-clock login [-c <company>]` | | Sign in via the browser and store the session |
 | `bizneo-clock logout` | | Remove the stored session |
-| `bizneo-clock status [--json]` | | Show whether you're clocked in (+ pause reasons) |
-| `bizneo-clock in` | `start`, `resume` | Clock in / resume work |
+| `bizneo-clock status [--json]` | | Show whether you're working, on a break, or clocked out |
+| `bizneo-clock in` | `start` | Clock in (start work) |
+| `bizneo-clock pause [-r <id>] [--comment <text>]` | | Take a break with a reason (lunch, break…) |
+| `bizneo-clock resume` | | Resume after a break (or clock in if fully clocked out) |
 | `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work |
-| `bizneo-clock pause [-r <id>] [--comment <text>]` | | Pause with a reason (lunch, break…) |
 
 Notes:
 
-- `in`, `out`, and `pause` first check your current state, so running them twice is safe
-  (e.g. `in` while already clocked in does nothing).
+- There are three states: **working**, **on a break** (paused), and **clocked out**. A break is
+  not a clock-out — you leave it with `resume`, not `in`.
+- Every command first checks your current state, so they're safe to run twice (e.g. `in` while
+  already working does nothing; `resume` while working does nothing).
 - `pause` lists your company's configured reasons. Pick interactively, or pass
   `--reason <id>` / `--reason <list-position>` to skip the prompt.
 - After every action the tool re-reads your state from Bizneo and reports the real result

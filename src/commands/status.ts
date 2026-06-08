@@ -15,11 +15,10 @@ export async function statusCommand(opts: { json?: boolean }): Promise<void> {
           host: client.session.host,
           userId: client.session.userId,
           status: state.status,
-          clockedIn: state.clockedIn,
           shiftId: state.shiftId,
           since: state.since ?? null,
           elapsedSeconds:
-            state.clockedIn && state.since
+            state.status !== "out" && state.since
               ? elapsedSeconds(state.since, state.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone)
               : null,
           pauseReasons: state.pauseReasons,
@@ -33,7 +32,9 @@ export async function statusCommand(opts: { json?: boolean }): Promise<void> {
 
   console.log(formatStatus(state));
   console.log(`Company: ${client.session.host}  ·  Employee: ${client.session.userId}`);
-  if (state.clockedIn && state.pauseReasons.length > 0) {
+  if (state.status === "working" && state.pauseReasons.length > 0) {
     console.log(`Pause reasons:\n  ${describeReasons(state.pauseReasons)}`);
+  } else if (state.status === "paused") {
+    console.log("Run `bizneo-clock resume` to get back to work.");
   }
 }

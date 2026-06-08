@@ -4,7 +4,7 @@ import { SessionExpiredError } from "./client.js";
 import { loginCommand } from "./commands/login.js";
 import { logoutCommand } from "./commands/logout.js";
 import { statusCommand } from "./commands/status.js";
-import { clockInCommand, clockOutCommand } from "./commands/clock.js";
+import { clockInCommand, clockOutCommand, resumeCommand } from "./commands/clock.js";
 import { pauseCommand } from "./commands/pause.js";
 
 /** Wrap a command so errors print cleanly and set a non-zero exit code. */
@@ -53,9 +53,14 @@ program
 
 program
   .command("in")
-  .aliases(["start", "resume"])
-  .description("Clock in (start or resume work)")
+  .aliases(["start"])
+  .description("Clock in (start work)")
   .action(run(clockInCommand));
+
+program
+  .command("resume")
+  .description("Resume after a break (or clock in if fully clocked out)")
+  .action(run(resumeCommand));
 
 program
   .command("out")
