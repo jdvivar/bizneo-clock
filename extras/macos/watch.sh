@@ -28,7 +28,10 @@ $out
 fi
 
 dow=$(date +%u)
-[ "$dow" -ge 6 ] && exit 0
+case " $ACTIVE_DAYS " in
+  *" $dow "*) ;;
+  *) exit 0 ;;
+esac
 
 now=$((10#$(date +%H%M)))
 today=$(date +%Y%m%d)
@@ -49,7 +52,7 @@ fi
 
 status=$(printf '%s' "$json" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{console.log(JSON.parse(s).status)}catch(e){console.log("")}})' 2>/dev/null)
 
-snooze() { echo $((nowepoch + $1 * 60)) > "$STATE_DIR/$2"; }
+snooze() { echo $((nowepoch + ${1:-$SNOOZE_DEFAULT} * 60)) > "$STATE_DIR/$2"; }
 snoozed_until() {
   local f="$STATE_DIR/$1"
   [ -f "$f" ] && [ "$(cat "$f" 2>/dev/null || echo 0)" -gt "$nowepoch" ]
@@ -67,18 +70,21 @@ fi
 if [ "$now" -ge "$CLOCKOUT_REMIND" ]; then
   if [ "$status" = "working" ] || [ "$status" = "paused" ]; then
     if snoozed_until clockout-snooze; then exit 0; fi
-    choice="$(dlg_clockout)"
+    opts=( "Clock out now" )
+    for m in $SNOOZE_PRESETS; do opts+=( "Snooze ${m} min" ); done
+    opts+=( "Custom…" )
+    choice="$(dlg_clockout "${opts[@]}")"
     case "$choice" in
       "Clock out now") "$BIN" out >/dev/null 2>&1 && notify "bizneo-clock" "Clocked out. Have a good evening! 👋" ;;
-      "Snooze 15 min") snooze 15 clockout-snooze ;;
-      "Snooze 30 min") snooze 30 clockout-snooze ;;
-      "Snooze 45 min") snooze 45 clockout-snooze ;;
-      "Snooze 1 hour") snooze 60 clockout-snooze ;;
       "Custom…")
         m="$(dlg_custom_minutes)"
-        if [[ "$m" =~ ^[0-9]+$ ]] && [ "$m" -gt 0 ]; then snooze "$m" clockout-snooze; else snooze 15 clockout-snooze; fi
+        if [[ "$m" =~ ^[0-9]+$ ]] && [ "$m" -gt 0 ]; then snooze "$m" clockout-snooze; else snooze "" clockout-snooze; fi
         ;;
-      *) snooze 15 clockout-snooze ;;
+      "") snooze "" clockout-snooze ;;
+      *)
+        mins="$(printf '%s' "$choice" | grep -oE '[0-9]+' | head -1)"
+        if [[ "$mins" =~ ^[0-9]+$ ]]; then snooze "$mins" clockout-snooze; else snooze "" clockout-snooze; fi
+        ;;
     esac
   fi
   exit 0
@@ -88,12 +94,11 @@ if [ "$now" -ge "$MORNING_START" ] && [ "$now" -lt "$MORNING_END" ]; then
   if [ "$status" = "out" ]; then
     if [ -f "$STATE_DIR/clockin-skip-$today" ]; then exit 0; fi
     if snoozed_until clockin-snooze; then exit 0; fi
-    choice="$(dlg_clockin)"
+    choice="$(dlg_clockin "$SNOOZE_DEFAULT")"
     case "$choice" in
       "Clock in") "$BIN" in >/dev/null 2>&1 && notify "bizneo-clock" "Clocked in. ☕ Have a good one!" ;;
-      "Snooze 15m") snooze 15 clockin-snooze ;;
       "Skip today") touch "$STATE_DIR/clockin-skip-$today" ;;
-      *) snooze 15 clockin-snooze ;;
+      *) snooze "" clockin-snooze ;;
     esac
   fi
   exit 0

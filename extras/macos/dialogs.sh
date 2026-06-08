@@ -5,29 +5,33 @@ notify() {
 }
 
 dlg_clockin() {
-  /usr/bin/osascript <<'EOF' 2>/dev/null
-try
-  tell application "System Events"
-    activate
-    set b to button returned of (display dialog "Ready to start work?" with title "bizneo-clock" buttons {"Skip today", "Snooze 15m", "Clock in"} default button "Clock in" with icon note giving up after 120)
-  end tell
-  return b
-on error
-  return ""
-end try
+  /usr/bin/osascript - "$1" <<'EOF' 2>/dev/null
+on run argv
+  set snz to item 1 of argv
+  try
+    tell application "System Events"
+      activate
+      set b to button returned of (display dialog "Ready to start work?" with title "bizneo-clock" buttons {"Skip today", "Snooze " & snz & "m", "Clock in"} default button "Clock in" with icon note giving up after 120)
+    end tell
+    return b
+  on error
+    return ""
+  end try
+end run
 EOF
 }
 
 dlg_clockout() {
-  /usr/bin/osascript <<'EOF' 2>/dev/null
-set opts to {"Clock out now", "Snooze 15 min", "Snooze 30 min", "Snooze 45 min", "Snooze 1 hour", "Custom…"}
-tell application "System Events" to activate
-set c to choose from list opts with title "bizneo-clock" with prompt "Time to wrap up — clock out?" default items {"Clock out now"}
-if c is false then
-  return ""
-else
-  return item 1 of c
-end if
+  /usr/bin/osascript - "$@" <<'EOF' 2>/dev/null
+on run argv
+  tell application "System Events" to activate
+  set c to choose from list argv with title "bizneo-clock" with prompt "Time to wrap up — clock out?" default items {item 1 of argv}
+  if c is false then
+    return ""
+  else
+    return item 1 of c
+  end if
+end run
 EOF
 }
 

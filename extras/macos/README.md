@@ -43,7 +43,10 @@ Automation/Notification permission on the spot. No clock action is taken.
 
 ## Configure
 
-Edit the times in [`config.sh`](./config.sh) (24h `HHMM`), then re-run `install.sh`.
+Everything is declarative in one file: [`config.sh`](./config.sh) — agent label, tick
+interval, active days, the four times (24h `HHMM`), and the snooze presets. Time, day, and
+snooze changes are picked up on the next tick; changing `LABEL` or `TICK_SECONDS` needs a
+re-run of `install.sh`.
 
 ## Uninstall
 

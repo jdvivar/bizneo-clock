@@ -3,7 +3,6 @@ set -uo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/config.sh"
-LABEL="com.jdvivar.bizneo-clock.watcher"
 
 mkdir -p "$STATE_DIR"
 touch "$STATE_DIR/demo-request"
