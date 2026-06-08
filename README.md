@@ -1,5 +1,7 @@
 # bizneo-clock
 
+[![CI](https://github.com/jdvivar/bizneo-clock/actions/workflows/ci.yml/badge.svg)](https://github.com/jdvivar/bizneo-clock/actions/workflows/ci.yml)
+
 Clock in and out of [Bizneo HR](https://www.bizneo.com/) (the *chrono* / time-tracking
 feature) straight from your terminal.
 
