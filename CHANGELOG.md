@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/jdvivar/bizneo-clock/compare/v0.1.2...v0.1.3) (2026-06-08)
+
+
+### Bug Fixes
+
+* resume from a break and distinguish paused from working state ([fc5d61c](https://github.com/jdvivar/bizneo-clock/commit/fc5d61c47955b84455d36e3018e6143ef911e72c))
+
 ## [0.1.2](https://github.com/jdvivar/bizneo-clock/compare/v0.1.1...v0.1.2) (2026-06-08)
 
 
