@@ -32,6 +32,15 @@ It reads your real state via `bizneo-clock status --json`, so it never nudges ag
 you've already done. Snoozes survive sleep (they're stored as timestamps, re-checked on wake).
 If you're not logged in, it shows one reminder per day instead of nagging.
 
+## Test it now
+
+```bash
+bash extras/macos/test.sh
+```
+
+Pops a harmless test notification + dialog **via the agent**, so you can approve the macOS
+Automation/Notification permission on the spot. No clock action is taken.
+
 ## Configure
 
 Edit the times in [`config.sh`](./config.sh) (24h `HHMM`), then re-run `install.sh`.

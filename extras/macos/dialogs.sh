@@ -31,6 +31,17 @@ end if
 EOF
 }
 
+dlg_test() {
+  /usr/bin/osascript <<'EOF' 2>/dev/null
+try
+  tell application "System Events"
+    activate
+    display dialog "bizneo-clock reminders are set up. This is just a test — approve any permission prompt that appears. No clock action is taken." with title "bizneo-clock (test)" buttons {"Great"} default button "Great" with icon note giving up after 60
+  end tell
+end try
+EOF
+}
+
 dlg_custom_minutes() {
   /usr/bin/osascript <<'EOF' 2>/dev/null
 try

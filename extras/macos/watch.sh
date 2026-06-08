@@ -5,13 +5,21 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/config.sh"
 source "$DIR/dialogs.sh"
 
+mkdir -p "$STATE_DIR"
+
+if [ -f "$STATE_DIR/test-request" ]; then
+  rm -f "$STATE_DIR/test-request"
+  notify "bizneo-clock" "Test notification — reminders are working ✅"
+  dlg_test
+  exit 0
+fi
+
 dow=$(date +%u)
 [ "$dow" -ge 6 ] && exit 0
 
 now=$((10#$(date +%H%M)))
 today=$(date +%Y%m%d)
 nowepoch=$(date +%s)
-mkdir -p "$STATE_DIR"
 
 find "$STATE_DIR" -type f -name 'clockin-skip-*' ! -name "clockin-skip-$today" -delete 2>/dev/null || true
 find "$STATE_DIR" -type f -name 'login-notice-*' ! -name "login-notice-$today" -delete 2>/dev/null || true
