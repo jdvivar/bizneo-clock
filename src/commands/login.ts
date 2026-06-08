@@ -13,7 +13,7 @@ export async function loginCommand(opts: { company?: string }): Promise<void> {
   const companyRaw =
     opts.company ??
     (await input({
-      message: "Company subdomain (e.g. ctaima) or full Bizneo host:",
+      message: "Company subdomain (e.g. acme) or full Bizneo host:",
       validate: (v) => (v.trim().length > 0 ? true : "Please enter your company subdomain"),
     }));
 

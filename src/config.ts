@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 
 export interface Session {
-  /** Company host, e.g. "ctaima.bizneohr.com" */
+  /** Company host, e.g. "acme.bizneohr.com" */
   host: string;
   /** Employee id used in the chrono routes, e.g. "18496179" */
   userId: string;

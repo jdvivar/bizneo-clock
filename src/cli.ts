@@ -37,7 +37,7 @@ program
 program
   .command("login")
   .description("Sign in via your browser and capture the session")
-  .option("-c, --company <subdomain>", "company subdomain (e.g. ctaima) or full Bizneo host")
+  .option("-c, --company <subdomain>", "company subdomain (e.g. acme) or full Bizneo host")
   .action(run(loginCommand));
 
 program

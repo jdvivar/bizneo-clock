@@ -30,7 +30,7 @@ password. Instead it opens a browser, you sign in the way you normally do, and i
 the resulting session.
 
 ```bash
-bizneo-clock login --company ctaima
+bizneo-clock login --company acme
 # or just: bizneo-clock login   (it'll ask for your company subdomain)
 ```
 
