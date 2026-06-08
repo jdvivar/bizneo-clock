@@ -7,22 +7,29 @@ export interface LoginResult {
   userAgent: string;
 }
 
-const CHANNELS = ["msedge", "chrome", "chromium"] as const;
+// Named channels for installed Chromium-based browsers, tried in order.
+// (Firefox/Safari aren't supported: Playwright only drives Firefox via its own
+// downloaded build, which we avoid by attaching to an already-installed browser.)
+const CHANNELS = ["chrome", "msedge"] as const;
 
 async function launchBrowser(): Promise<Browser> {
   let lastError: unknown;
   for (const channel of CHANNELS) {
     try {
-      // "chromium" channel falls back to a Playwright-managed build if present.
-      const opts = channel === "chromium" ? { headless: false } : { channel, headless: false };
-      return await chromium.launch(opts);
+      return await chromium.launch({ channel, headless: false });
     } catch (err) {
       lastError = err;
     }
   }
+  // Fall back to any Playwright-managed Chromium build, if one is installed.
+  try {
+    return await chromium.launch({ headless: false });
+  } catch (err) {
+    lastError = err;
+  }
   throw new Error(
-    "Could not launch a browser. bizneo-clock uses your installed Microsoft Edge or Google Chrome for the SSO login. " +
-      "Please install one of them and try again.\n" +
+    "Could not launch a browser. bizneo-clock uses an installed Chromium-based browser " +
+      "(Chrome, Edge, Brave, …) for the SSO login. Please install one and try again.\n" +
       `Underlying error: ${lastError instanceof Error ? lastError.message : String(lastError)}`,
   );
 }

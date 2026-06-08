@@ -17,8 +17,9 @@ bizneo-clock status   # am I clocked in?
 npm install -g bizneo-clock
 ```
 
-Requires **Node.js ≥ 18** and an installed **Microsoft Edge** or **Google Chrome**
-(used only for the one-time browser login — no extra browser is downloaded).
+Requires **Node.js ≥ 18** and any installed **Chromium-based browser** (Chrome, Edge, Brave,
+Arc, Vivaldi, …), used only for the one-time browser login — no extra browser is downloaded.
+Firefox and Safari are not supported for login.
 
 ## Login
 
@@ -80,7 +81,7 @@ the current shift, then submits the matching request with your stored session co
 
 ## Troubleshooting
 
-- **"Could not launch a browser"** — install Microsoft Edge or Google Chrome.
+- **"Could not launch a browser"** — install a Chromium-based browser (Chrome, Edge, Brave…).
 - **"session has expired"** — run `bizneo-clock login` again.
 - **403 on an action** — the session/CSRF went stale; re-run `bizneo-clock login`.
 
