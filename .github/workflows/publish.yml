@@ -1,8 +1,9 @@
-name: publish
+name: publish (manual)
 
+# Manual / recovery publish of whatever version is in package.json on main.
+# Normal releases publish automatically from the release-please workflow.
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
   publish:
