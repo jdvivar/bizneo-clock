@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/jdvivar/bizneo-clock/compare/v0.1.3...v0.1.4) (2026-06-08)
+
+
+### Miscellaneous Chores
+
+* release 0.1.4 ([43ba82d](https://github.com/jdvivar/bizneo-clock/commit/43ba82d55113fc3495716d701a96cb5d82592b63))
+
 ## [0.1.3](https://github.com/jdvivar/bizneo-clock/compare/v0.1.2...v0.1.3) (2026-06-08)
 
 
