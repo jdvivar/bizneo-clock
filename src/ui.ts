@@ -1,11 +1,23 @@
 import { select } from "@inquirer/prompts";
 import type { ChronoState, PauseReason } from "./chrono.js";
+import { elapsedSeconds, formatDuration, formatClock, parseLocalTimestamp } from "./time.js";
 
 export function formatStatus(state: ChronoState): string {
-  if (state.clockedIn) {
-    return "🟢 Clocked IN (working)";
+  if (!state.clockedIn) {
+    return "⚪ Clocked OUT (not working)";
   }
-  return "⚪ Clocked OUT (not working)";
+
+  let line = "🟢 Clocked IN (working)";
+  if (state.since) {
+    const tz = state.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const secs = elapsedSeconds(state.since, tz);
+    const start = parseLocalTimestamp(state.since);
+    const bits: string[] = [];
+    if (secs != null) bits.push(`${formatDuration(secs)} elapsed`);
+    if (start) bits.push(`since ${formatClock(start)}`);
+    if (bits.length) line += ` — ${bits.join(", ")}`;
+  }
+  return line;
 }
 
 export function describeReasons(reasons: PauseReason[]): string {

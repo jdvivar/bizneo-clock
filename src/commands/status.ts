@@ -1,6 +1,7 @@
 import { requireClient, persistIfChanged } from "../context.js";
 import { getState } from "../chrono.js";
 import { formatStatus, describeReasons } from "../ui.js";
+import { elapsedSeconds } from "../time.js";
 
 export async function statusCommand(opts: { json?: boolean }): Promise<void> {
   const client = await requireClient();
@@ -16,6 +17,11 @@ export async function statusCommand(opts: { json?: boolean }): Promise<void> {
           status: state.status,
           clockedIn: state.clockedIn,
           shiftId: state.shiftId,
+          since: state.since ?? null,
+          elapsedSeconds:
+            state.clockedIn && state.since
+              ? elapsedSeconds(state.since, state.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone)
+              : null,
           pauseReasons: state.pauseReasons,
         },
         null,

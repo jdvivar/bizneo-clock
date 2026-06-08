@@ -18,6 +18,10 @@ export interface ChronoState {
   shiftId: string;
   kind: string;
   pauseReasons: PauseReason[];
+  /** Clock-in timestamp (wall-clock string from the timer), when clocked in. */
+  since?: string;
+  /** IANA time zone the `since` timestamp is expressed in. */
+  timeZone?: string;
   /** Raw fields parsed from the form, for debugging / fallbacks. */
   fields: Record<string, string>;
 }
@@ -58,6 +62,10 @@ export function parseChronoFragment(html: string): ChronoState {
   const isPut = (fields["_method"] || "").toLowerCase() === "put";
   const clockedIn = isPut || hasStop || pauseReasons.length > 0;
 
+  const timerEl = $("[data-from]").first();
+  const since = timerEl.attr("data-from")?.trim() || undefined;
+  const timeZone = timerEl.attr("data-time-zone")?.trim() || undefined;
+
   return {
     status: clockedIn ? "in" : "out",
     clockedIn,
@@ -65,6 +73,8 @@ export function parseChronoFragment(html: string): ChronoState {
     shiftId,
     kind,
     pauseReasons,
+    since,
+    timeZone,
     fields,
   };
 }
