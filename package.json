@@ -1,0 +1,42 @@
+{
+  "name": "bizneo-clock",
+  "version": "0.1.0",
+  "description": "Personal CLI to clock in/out of Bizneo HR (chrono) from your terminal",
+  "type": "module",
+  "bin": {
+    "bizneo-clock": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "bizneo",
+    "hr",
+    "clock-in",
+    "clock-out",
+    "time-tracking",
+    "chrono",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^7.2.1",
+    "cheerio": "^1.0.0",
+    "commander": "^13.0.0",
+    "playwright-core": "^1.49.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.2"
+  }
+}
