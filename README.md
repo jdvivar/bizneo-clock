@@ -90,6 +90,13 @@ the current shift, then submits the matching request with your stored session co
 - **"session has expired"** — run `bizneo-clock login` again.
 - **403 on an action** — the session/CSRF went stale; re-run `bizneo-clock login`.
 
+## Development & design
+
+- [`AGENTS.md`](./AGENTS.md) — quick orientation for humans/AI: layout, commands, conventions.
+- [`docs/DESIGN.md`](./docs/DESIGN.md) — the reasoning: reverse-engineered Bizneo mechanics,
+  decisions, and the hard-won gotchas (auth, the 3-state pause model, the release pipeline).
+- [`extras/macos/`](./extras/macos/) — optional local `launchd` clock-in/out reminders.
+
 ## Disclaimer
 
 Unofficial tool, not affiliated with Bizneo. It talks only to your own company's Bizneo
