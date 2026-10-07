@@ -154,16 +154,20 @@ for the configured workflow, and provenance is generated automatically (no `--pr
 Requirements:
 - npm CLI ≥ 11.5.1 and Node ≥ 22.14. The workflows use Node 24 + `npm install -g npm@latest`.
 - `permissions: id-token: write` on the publishing job.
-- On npmjs.com → package **Settings → Trusted publishing**, one GitHub Actions entry per
-  workflow file: owner `jdvivar`, repo `bizneo-clock`, workflow `release-please.yml`, and a
-  second one for `publish.yml` (up to 10 are allowed). The filename must match exactly. A
-  renamed workflow will fail to publish until it's registered.
+- On npmjs.com → package **Settings → Trusted publishing**: one GitHub Actions entry, owner
+  `jdvivar`, repo `bizneo-clock`, workflow `release-please.yml`, no environment, with
+  **"Allow npm publish" ticked**. Without it the publisher may only `npm stage publish`,
+  which needs a manual 2FA approval per release. The filename must match exactly. A renamed
+  workflow can't publish until it's registered.
+- **A new trusted publisher must publish once within ~2 days or it isn't validated.** That's
+  why there's only one publishing workflow: a separate manual `publish.yml` would only be
+  validated if it happened to be used in that window. Recovery is a `workflow_dispatch`
+  input on `release-please.yml` instead (§5.6).
 
 ### 5.4 `GITHUB_TOKEN`-created releases don't trigger `on: release` workflows
 GitHub's loop-prevention. So a separate `publish.yml` on `release: published` never fired.
-**Fix:** the npm publish step lives **inside the release-please job**, gated on
-`steps.release.outputs.release_created`. `publish.yml` is kept only as a manual
-(`workflow_dispatch`) recovery/escape hatch.
+**Fix:** the npm publish steps live **inside the release-please job**, gated on
+`steps.release.outputs.release_created || inputs.publish`.
 
 ### 5.5 "GitHub Actions is not permitted to create or approve pull requests"
 release-please can't open its PR until repo **Settings → Actions → General → Workflow
@@ -171,7 +175,9 @@ permissions → "Allow GitHub Actions to create and approve pull requests"** is 
 
 ### 5.6 Releasing a state that didn't auto-publish
 If a version got tagged but not published (e.g. an auth failure, §5.3), the auto-path won't re-publish
-it. Either run the manual `publish.yml`, or move forward with a new release. To force a
+it. Either run `release-please.yml` by hand with `publish = true`
+(`gh workflow run release-please.yml -f publish=true`, which publishes `main`'s
+`package.json` version), or move forward with a new release. We recovered `0.1.5` this way. To force a
 specific version without rewriting history, push an empty commit with a `Release-As: x.y.z`
 footer (we used this for `0.1.4`).
 
