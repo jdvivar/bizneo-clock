@@ -22,7 +22,7 @@ network traffic and reading the rendered HTML.
   auto-renews on use. So: log in once, works for weeks.
 - **Login is Microsoft SSO** for our company. That's why we don't script credentials — see
   decision §2.1.
-- **`{userId}`** (e.g. `18496179`) is the employee id, stable, and discoverable from the home
+- **`{userId}`** (e.g. `12345678`) is the employee id, stable, and discoverable from the home
   page (`hx-get="/chrono/<userId>/hub_chrono"`).
 
 ### Endpoints
