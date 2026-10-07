@@ -80,6 +80,12 @@ and you leave it with a *resume*, not a clock-in.
   **Chromium-based** browser, so **no ~150 MB browser download**), the user signs in normally,
   and we capture cookies once the `hub_chrono` route is reachable. Firefox/Safari can't work
   with the `channel` approach — Playwright only drives its own downloaded Firefox build.
+- **Browser discovery order:** `BIZNEO_CLOCK_BROWSER` (an explicit executable path), then the
+  `chrome` / `msedge` channels, then well-known Brave / Chromium install paths per OS, then a
+  Playwright-managed Chromium if one exists. Brave and Chromium need `executablePath`
+  because Playwright has no channel for them. **Vivaldi doesn't work** (tested with 8.1: it
+  launches, but the page target closes immediately; its UI is itself web content), and Arc
+  is untested, so neither is listed.
 
 ### 2.2 Generic / company-agnostic
 
