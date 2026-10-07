@@ -28,6 +28,10 @@ unless a nudge is actually due (weekdays only).
 | **From 17:30**, if working or paused | Dialog: **Clock out now** / Snooze 15·30·45·60 min / Custom… |
 | **21:00**, if still working or paused | Auto clock-out + a dialog and a notification |
 
+<p align="center">
+  <img src="./images/clock-out-dialog.png" width="452" alt="The 17:30 clock-out reminder: 'Time to wrap up — clock out?' with Clock out now, Snooze 15/30/45/60 min and Custom… options">
+</p>
+
 It reads your real state via `bizneo-clock status --json`, so it never nudges against what
 you've already done. Snoozes survive sleep (they're stored as timestamps, re-checked on wake).
 If you're not logged in, it shows one reminder per day instead of nagging.
