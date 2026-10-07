@@ -18,7 +18,9 @@ ACTIVE_DAYS="1 2 3 4 5"
 MORNING_START=700      # start the "clock in?" nudge from this time
 MORNING_END=1100       # stop the morning nudge after this time
 CLOCKOUT_REMIND=1730   # start the "clock out?" reminder from this time
-AUTO_CLOCKOUT=2100     # force a clock-out at/after this time
+AUTO_CLOCKOUT=2100     # force a clock-out at/after this time (sessions started earlier)
+LATE_AUTO_CLOCKOUT=200 # sessions started at/after AUTO_CLOCKOUT are left alone until
+                       # this time the next morning (or today, if started after midnight)
 
 # Snooze options offered in the clock-out dialog, in minutes (space-separated).
 SNOOZE_PRESETS="15 30 45 60"

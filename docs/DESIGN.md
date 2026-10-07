@@ -22,7 +22,7 @@ network traffic and reading the rendered HTML.
   auto-renews on use. So: log in once, works for weeks.
 - **Login is Microsoft SSO** for our company. That's why we don't script credentials — see
   decision §2.1.
-- **`{userId}`** (e.g. `18496179`) is the employee id, stable, and discoverable from the home
+- **`{userId}`** (e.g. `12345678`) is the employee id, stable, and discoverable from the home
   page (`hx-get="/chrono/<userId>/hub_chrono"`).
 
 ### Endpoints
@@ -80,6 +80,12 @@ and you leave it with a *resume*, not a clock-in.
   **Chromium-based** browser, so **no ~150 MB browser download**), the user signs in normally,
   and we capture cookies once the `hub_chrono` route is reachable. Firefox/Safari can't work
   with the `channel` approach — Playwright only drives its own downloaded Firefox build.
+- **Browser discovery order:** `BIZNEO_CLOCK_BROWSER` (an explicit executable path), then the
+  `chrome` / `msedge` channels, then well-known Brave / Chromium install paths per OS, then a
+  Playwright-managed Chromium if one exists. Brave and Chromium need `executablePath`
+  because Playwright has no channel for them. **Vivaldi doesn't work** (tested with 8.1: it
+  launches, but the page target closes immediately; its UI is itself web content), and Arc
+  is untested, so neither is listed.
 
 ### 2.2 Generic / company-agnostic
 
@@ -132,6 +138,10 @@ A break keeps you "in" the chrono session, so naive `clockedIn` detection thinks
 working and `resume`/`in` no-op. Resume is `PUT … pause=<resumeValue>` (the "Reanudar"
 button), **not** `POST /chrono`. Hence the explicit **3-state** model.
 
+`out` while paused resumes first and then finishes (two requests), because "clock out"
+clearly means "end my day". It used to refuse with exit 0, which made the macOS auto
+clock-out silently do nothing for a forgotten break.
+
 ### 5.3 npm publish failed with `EOTP`
 The account has 2FA "auth + writes". A classic **Publish** token still demands an OTP in CI.
 Fix: use an **Automation** token, or a **Granular** token with **"Bypass two-factor
@@ -164,6 +174,12 @@ The launchd agent has a minimal `PATH` and the bin's shebang is `#!/usr/bin/env 
 nvm) and bakes it into the agent's `PATH`. If the user changes their default Node version, the
 global bin path changes → re-run `install.sh`.
 
+### 5.9 Exit codes are the scripting contract
+`0` = you're in the requested state (done now, or already were). `1` = it didn't happen
+(the post-action re-read disagrees, or the command doesn't apply to the current state).
+`extras/macos/watch.sh` and any other automation depend on this; don't print a warning
+and exit 0.
+
 ---
 
 ## 6. macOS reminders (`extras/macos/`)
@@ -174,10 +190,26 @@ clock-out from 17:30 with snooze, and force-clocks-out at 21:00. Native dialogs 
 (sleep-proof).
 
 - **One declarative config:** `extras/macos/config.sh` holds every knob (label, tick interval,
-  active days, the four times, snooze presets). `watch.sh`, the dialogs, the plist template,
+  active days, the five times, snooze presets).
+- **Auto clock-out is per session, not per time of day.** The watcher works out when the
+  session started (`now - elapsedSeconds`, which avoids time-zone conversion) and sets a
+  deadline: `AUTO_CLOCKOUT` that day for a normal session, or `LATE_AUTO_CLOCKOUT` (next
+  morning) for one started at/after `AUTO_CLOCKOUT` or after midnight. Late sessions get no
+  reminders. The earlier rule ("after 21:00, if working → out" on every tick) clocked out
+  deliberate late work within one tick (5 min). See gotcha below. `watch.sh`, the dialogs, the plist template,
   and install/uninstall/test/demo all derive from it.
 - A single watcher ticks every `TICK_SECONDS` and dispatches by time-of-day, rather than three
   separate timers — simpler and resilient to sleep (missed ticks fire on wake).
+- **Auto clock-out from a break** resumes first: `bizneo-clock out` refuses while paused
+  (gotcha §5.2). Every agent-driven clock-out re-reads the state and reports failure instead
+  of assuming success.
+- **Focus modes hold back `osascript` notifications.** They're attributed to *Script Editor*
+  (`com.apple.ScriptEditor2`), which Focus usually doesn't allow, so they're delayed into the
+  Notification Center drawer (`log show` says `muted by DND suppression: delay`). Dialogs
+  aren't held back, so state-changing actions (auto clock-out) show a dialog too.
+- **Diagnosing the agent:** it logs each action to `watcher.log`. For older history, the
+  unified log shows each run (`xpcproxy … bizneo-clock.watcher.plist`) and one `app = node`
+  network flow per CLI call. In zsh, use `/usr/bin/log`, because `log` is a shell builtin.
 - `test.sh` (permission check) and `demo.sh` (runs `bizneo-clock status` via the agent) route
   *through the agent* so macOS attributes the Automation/Notification permission to the agent.
 
