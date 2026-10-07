@@ -138,6 +138,10 @@ A break keeps you "in" the chrono session, so naive `clockedIn` detection thinks
 working and `resume`/`in` no-op. Resume is `PUT … pause=<resumeValue>` (the "Reanudar"
 button), **not** `POST /chrono`. Hence the explicit **3-state** model.
 
+`out` while paused resumes first and then finishes (two requests), because "clock out"
+clearly means "end my day". It used to refuse with exit 0, which made the macOS auto
+clock-out silently do nothing for a forgotten break.
+
 ### 5.3 npm publish failed with `EOTP`
 The account has 2FA "auth + writes". A classic **Publish** token still demands an OTP in CI.
 Fix: use an **Automation** token, or a **Granular** token with **"Bypass two-factor
@@ -169,6 +173,12 @@ The launchd agent has a minimal `PATH` and the bin's shebang is `#!/usr/bin/env 
 `install.sh` resolves `dirname $(command -v bizneo-clock)` (which also contains `node` under
 nvm) and bakes it into the agent's `PATH`. If the user changes their default Node version, the
 global bin path changes → re-run `install.sh`.
+
+### 5.9 Exit codes are the scripting contract
+`0` = you're in the requested state (done now, or already were). `1` = it didn't happen
+(the post-action re-read disagrees, or the command doesn't apply to the current state).
+`extras/macos/watch.sh` and any other automation depend on this; don't print a warning
+and exit 0.
 
 ---
 
