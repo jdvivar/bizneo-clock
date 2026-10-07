@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import { Command } from "commander";
 import { SessionExpiredError } from "./client.js";
 import { loginCommand } from "./commands/login.js";
@@ -27,12 +28,14 @@ function run<T extends unknown[]>(fn: (...args: T) => Promise<void>) {
   };
 }
 
+const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
+
 const program = new Command();
 
 program
   .name("bizneo-clock")
   .description("Clock in/out of Bizneo HR (chrono) from your terminal")
-  .version("0.1.0");
+  .version(version);
 
 program
   .command("login")
@@ -47,7 +50,7 @@ program
 
 program
   .command("status")
-  .description("Show whether you're currently clocked in")
+  .description("Show whether you're working, on a break, or clocked out")
   .option("--json", "output machine-readable JSON")
   .action(run(statusCommand));
 
@@ -65,7 +68,7 @@ program
 program
   .command("out")
   .aliases(["finish", "stop"])
-  .description("Clock out (finish work)")
+  .description("Clock out (finish work), ending a break first if needed")
   .option("--comment <text>", "optional comment")
   .action(run(clockOutCommand));
 
