@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.5](https://github.com/jdvivar/bizneo-clock/compare/v0.1.4...v0.1.5) (2026-10-07)
+
+
+### Features
+
+* find Brave and Chromium for login, and allow BIZNEO_CLOCK_BROWSER ([0ed1f53](https://github.com/jdvivar/bizneo-clock/commit/0ed1f53000a7a3c7b06ffe614bee6e853a9bf8b2))
+
+
+### Bug Fixes
+
+* clock out from a break, verify pause, and exit 1 when an action doesn't happen ([fbd687b](https://github.com/jdvivar/bizneo-clock/commit/fbd687b4ba1d43e99c201e326aea0ad4f90b8270))
+* report the real package version and describe the 3-state status in help ([18c3f36](https://github.com/jdvivar/bizneo-clock/commit/18c3f363b67e7bc2451859e89c724d57ee12daba))
+
 ## [0.1.4](https://github.com/jdvivar/bizneo-clock/compare/v0.1.3...v0.1.4) (2026-06-08)
 
 
