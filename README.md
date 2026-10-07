@@ -53,7 +53,7 @@ you to run `bizneo-clock login` again.
 | `bizneo-clock in` | `start` | Clock in (start work) |
 | `bizneo-clock pause [-r <id>] [--comment <text>]` | | Take a break with a reason (lunch, break…) |
 | `bizneo-clock resume` | | Resume after a break (or clock in if fully clocked out) |
-| `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work |
+| `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work (ends a break first if you're on one) |
 
 Notes:
 
@@ -65,6 +65,10 @@ Notes:
   `--reason <id>` / `--reason <list-position>` to skip the prompt.
 - After every action the tool re-reads your state from Bizneo and reports the real result
   rather than assuming the request worked.
+- **Exit codes** (for scripts): `0` means you're in the requested state, either because the
+  action worked or because you already were. `1` means it didn't happen: the request didn't
+  take effect, or the command doesn't apply to your current state (e.g. `in` while on a
+  break, or `pause` while clocked out).
 
 ## How it works
 
