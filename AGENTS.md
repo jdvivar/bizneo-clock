@@ -48,7 +48,9 @@ live account (with the user's consent — clock effects are seconds and get rest
 - Personal repo: https://github.com/jdvivar/bizneo-clock. Local identity is set per-repo
   (`jdvivar <jdvivar@gmail.com>`); the remote uses the `github-personal` SSH host alias.
 - Release: land conventional commits → merge the release-please PR → npm publish happens
-  automatically (`NPM_TOKEN` secret must be an Automation or "bypass-2FA" Granular token).
+  automatically via **npm Trusted Publishing** (OIDC, no `NPM_TOKEN`). Both
+  `release-please.yml` and `publish.yml` must be registered as trusted publishers on
+  npmjs.com (see `docs/DESIGN.md` §5.3).
 - Manual/recovery publish: the `publish.yml` workflow (`workflow_dispatch`).
 
 ## Requirements

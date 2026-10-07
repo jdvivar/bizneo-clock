@@ -142,11 +142,22 @@ button), **not** `POST /chrono`. Hence the explicit **3-state** model.
 clearly means "end my day". It used to refuse with exit 0, which made the macOS auto
 clock-out silently do nothing for a forgotten break.
 
-### 5.3 npm publish failed with `EOTP`
-The account has 2FA "auth + writes". A classic **Publish** token still demands an OTP in CI.
-Fix: use an **Automation** token, or a **Granular** token with **"Bypass two-factor
-authentication" checked**. (We hit this because the granular token was created without the
-bypass box ticked.)
+### 5.3 npm auth: Trusted Publishing, not tokens
+History: a classic **Publish** token demanded an OTP in CI (`EOTP`, the account has 2FA
+"auth + writes"). A bypass-2FA Granular token fixed that, until it expired: the 0.1.5
+publish failed with `E404 Not Found - PUT …/bizneo-clock`. npm answers **404, not 401/403,
+to an unauthorised write** on an existing package, so read E404 on publish as "auth is
+broken".
+
+Now: **Trusted Publishing** (OIDC). There's no secret: npm trusts GitHub's identity token
+for the configured workflow, and provenance is generated automatically (no `--provenance`).
+Requirements:
+- npm CLI ≥ 11.5.1 and Node ≥ 22.14. The workflows use Node 24 + `npm install -g npm@latest`.
+- `permissions: id-token: write` on the publishing job.
+- On npmjs.com → package **Settings → Trusted publishing**, one GitHub Actions entry per
+  workflow file: owner `jdvivar`, repo `bizneo-clock`, workflow `release-please.yml`, and a
+  second one for `publish.yml` (up to 10 are allowed). The filename must match exactly. A
+  renamed workflow will fail to publish until it's registered.
 
 ### 5.4 `GITHUB_TOKEN`-created releases don't trigger `on: release` workflows
 GitHub's loop-prevention. So a separate `publish.yml` on `release: published` never fired.
@@ -159,7 +170,7 @@ release-please can't open its PR until repo **Settings → Actions → General �
 permissions → "Allow GitHub Actions to create and approve pull requests"** is enabled.
 
 ### 5.6 Releasing a state that didn't auto-publish
-If a version got tagged but not published (e.g. the token bug), the auto-path won't re-publish
+If a version got tagged but not published (e.g. an auth failure, §5.3), the auto-path won't re-publish
 it. Either run the manual `publish.yml`, or move forward with a new release. To force a
 specific version without rewriting history, push an empty commit with a `Release-As: x.y.z`
 footer (we used this for `0.1.4`).
