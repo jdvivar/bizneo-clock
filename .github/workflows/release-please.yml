@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Also publish main's package.json version to npm (recovery, if a release was tagged but not published)"
+        type: boolean
+        default: false
 
 jobs:
   release-please:
@@ -11,7 +16,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      id-token: write # required for npm provenance
+      id-token: write # npm trusted publishing (OIDC) + provenance
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -19,17 +24,16 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      # Publish to npm only when this run actually cut a release.
       - uses: actions/checkout@v4
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.publish }}
       - uses: actions/setup-node@v4
-        if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created || inputs.publish }}
         with:
-          node-version: 22.x
+          node-version: 24.x
           registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@latest
+        if: ${{ steps.release.outputs.release_created || inputs.publish }}
       - run: npm ci
-        if: ${{ steps.release.outputs.release_created }}
-      - run: npm publish --provenance --access public
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: ${{ steps.release.outputs.release_created || inputs.publish }}
+      - run: npm publish --access public
+        if: ${{ steps.release.outputs.release_created || inputs.publish }}

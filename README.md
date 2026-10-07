@@ -13,6 +13,10 @@ bizneo-clock out      # finish for the day
 bizneo-clock status   # am I working, on a break, or clocked out?
 ```
 
+**On macOS, it can also remind you.** An optional background agent asks you to clock in when
+you start your day, reminds you to clock out in the evening (with snooze), and clocks you out
+automatically if you forget. See [macOS reminders](#macos-reminders).
+
 ## Install
 
 ```bash
@@ -70,6 +74,36 @@ Notes:
   take effect, or the command doesn't apply to your current state (e.g. `in` while on a
   break, or `pause` while clocked out).
 
+## macOS reminders
+
+Forgetting to clock in or out is the main way time records go wrong, so the repo includes
+an optional `launchd` agent that keeps an eye on it. It uses native macOS dialogs and checks
+your real state with `bizneo-clock status --json`, so it never nags you about something
+you've already done.
+
+| When (weekdays) | What happens |
+| --- | --- |
+| **07:00–11:00**, if you're clocked out | "Ready to start work?" with **Clock in** / Snooze / Skip today |
+| **From 17:30**, if you're working or on a break | "Time to wrap up?" with **Clock out now** / Snooze 15–60 min / Custom |
+| **21:00**, if you're still clocked in | Clocks you out automatically and tells you (a dialog plus a notification) |
+
+Working late on purpose? A session you start after 21:00 is left alone: no reminders, and
+the automatic clock-out moves to 02:00. A forgotten break is handled too: the agent ends it
+before clocking out.
+
+It isn't part of the npm package, so install it from a clone of this repo. The agent runs
+the scripts from wherever you clone it, so keep the clone around:
+
+```bash
+git clone https://github.com/jdvivar/bizneo-clock.git
+bash bizneo-clock/extras/macos/install.sh   # needs bizneo-clock installed and logged in
+bash bizneo-clock/extras/macos/test.sh      # shows a test dialog; approve macOS's permission prompt
+```
+
+All times, days and snooze options live in one file,
+[`extras/macos/config.sh`](./extras/macos/config.sh). For the details (behaviour, logs,
+uninstalling), see [`extras/macos/README.md`](./extras/macos/README.md).
+
 ## How it works
 
 Bizneo's web app (Phoenix + HTMX) drives clocking through:
@@ -101,7 +135,7 @@ the current shift, then submits the matching request with your stored session co
 - [`AGENTS.md`](./AGENTS.md) — quick orientation for humans/AI: layout, commands, conventions.
 - [`docs/DESIGN.md`](./docs/DESIGN.md) — the reasoning: reverse-engineered Bizneo mechanics,
   decisions, and the hard-won gotchas (auth, the 3-state pause model, the release pipeline).
-- [`extras/macos/`](./extras/macos/) — optional local `launchd` clock-in/out reminders.
+- [`extras/macos/`](./extras/macos/) — the optional macOS reminders (see [above](#macos-reminders)).
 
 ## Disclaimer
 
