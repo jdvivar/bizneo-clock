@@ -174,10 +174,26 @@ clock-out from 17:30 with snooze, and force-clocks-out at 21:00. Native dialogs 
 (sleep-proof).
 
 - **One declarative config:** `extras/macos/config.sh` holds every knob (label, tick interval,
-  active days, the four times, snooze presets). `watch.sh`, the dialogs, the plist template,
+  active days, the five times, snooze presets).
+- **Auto clock-out is per session, not per time of day.** The watcher works out when the
+  session started (`now - elapsedSeconds`, which avoids time-zone conversion) and sets a
+  deadline: `AUTO_CLOCKOUT` that day for a normal session, or `LATE_AUTO_CLOCKOUT` (next
+  morning) for one started at/after `AUTO_CLOCKOUT` or after midnight. Late sessions get no
+  reminders. The earlier rule ("after 21:00, if working → out" on every tick) clocked out
+  deliberate late work within one tick (5 min). See gotcha below. `watch.sh`, the dialogs, the plist template,
   and install/uninstall/test/demo all derive from it.
 - A single watcher ticks every `TICK_SECONDS` and dispatches by time-of-day, rather than three
   separate timers — simpler and resilient to sleep (missed ticks fire on wake).
+- **Auto clock-out from a break** resumes first: `bizneo-clock out` refuses while paused
+  (gotcha §5.2). Every agent-driven clock-out re-reads the state and reports failure instead
+  of assuming success.
+- **Focus modes hold back `osascript` notifications.** They're attributed to *Script Editor*
+  (`com.apple.ScriptEditor2`), which Focus usually doesn't allow, so they're delayed into the
+  Notification Center drawer (`log show` says `muted by DND suppression: delay`). Dialogs
+  aren't held back, so state-changing actions (auto clock-out) show a dialog too.
+- **Diagnosing the agent:** it logs each action to `watcher.log`. For older history, the
+  unified log shows each run (`xpcproxy … bizneo-clock.watcher.plist`) and one `app = node`
+  network flow per CLI call. In zsh, use `/usr/bin/log`, because `log` is a shell builtin.
 - `test.sh` (permission check) and `demo.sh` (runs `bizneo-clock status` via the agent) route
   *through the agent* so macOS attributes the Automation/Notification permission to the agent.
 
