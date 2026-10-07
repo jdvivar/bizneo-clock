@@ -19,9 +19,10 @@ bizneo-clock status   # am I working, on a break, or clocked out?
 npm install -g bizneo-clock
 ```
 
-Requires **Node.js ≥ 18** and any installed **Chromium-based browser** (Chrome, Edge, Brave,
-Arc, Vivaldi, …), used only for the one-time browser login — no extra browser is downloaded.
-Firefox and Safari are not supported for login.
+Requires **Node.js ≥ 18** and an installed **Chromium-based browser** (Chrome, Edge, Brave or
+Chromium), used only for the one-time browser login. No extra browser is downloaded. Firefox
+and Safari aren't supported for login, and neither are Vivaldi or Arc. To use a different
+Chromium-based browser, point `BIZNEO_CLOCK_BROWSER` at its executable.
 
 ## Login
 
@@ -52,7 +53,7 @@ you to run `bizneo-clock login` again.
 | `bizneo-clock in` | `start` | Clock in (start work) |
 | `bizneo-clock pause [-r <id>] [--comment <text>]` | | Take a break with a reason (lunch, break…) |
 | `bizneo-clock resume` | | Resume after a break (or clock in if fully clocked out) |
-| `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work |
+| `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work (ends a break first if you're on one) |
 
 Notes:
 
@@ -64,6 +65,10 @@ Notes:
   `--reason <id>` / `--reason <list-position>` to skip the prompt.
 - After every action the tool re-reads your state from Bizneo and reports the real result
   rather than assuming the request worked.
+- **Exit codes** (for scripts): `0` means you're in the requested state, either because the
+  action worked or because you already were. `1` means it didn't happen: the request didn't
+  take effect, or the command doesn't apply to your current state (e.g. `in` while on a
+  break, or `pause` while clocked out).
 
 ## How it works
 
@@ -86,7 +91,8 @@ the current shift, then submits the matching request with your stored session co
 
 ## Troubleshooting
 
-- **"Could not launch a browser"** — install a Chromium-based browser (Chrome, Edge, Brave…).
+- **"Could not launch a browser"**: install Chrome, Edge, Brave or Chromium, or set
+  `BIZNEO_CLOCK_BROWSER=/path/to/browser` for another Chromium-based browser.
 - **"session has expired"** — run `bizneo-clock login` again.
 - **403 on an action** — the session/CSRF went stale; re-run `bizneo-clock login`.
 

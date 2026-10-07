@@ -16,6 +16,7 @@ export async function pauseCommand(opts: { reason?: string; comment?: string }):
     console.log("You're not clocked in, so there's nothing to pause. Use `bizneo-clock in` first.");
     console.log(formatStatus(state));
     await persistIfChanged(client);
+    process.exitCode = 1;
     return;
   }
 
@@ -23,12 +24,18 @@ export async function pauseCommand(opts: { reason?: string; comment?: string }):
   if (!reason) {
     console.log("No pause reasons are available for your company. Use `bizneo-clock out` to clock out instead.");
     await persistIfChanged(client);
+    process.exitCode = 1;
     return;
   }
 
   state = await pause(client, client.session, state, reason.id, opts.comment ?? "");
   await persistIfChanged(client);
 
-  console.log(`✅ Paused (${reason.label}).`);
+  if (state.status === "paused") {
+    console.log(`✅ Paused (${reason.label}).`);
+  } else {
+    console.log("⚠️  Request sent, but you don't appear to be on a break. Check the Bizneo app.");
+    process.exitCode = 1;
+  }
   console.log(formatStatus(state));
 }

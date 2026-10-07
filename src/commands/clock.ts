@@ -16,6 +16,7 @@ export async function clockInCommand(): Promise<void> {
     console.log("You're on a break — use `bizneo-clock resume` to get back to work.");
     console.log(formatStatus(state));
     await persistIfChanged(client);
+    process.exitCode = 1;
     return;
   }
 
@@ -26,6 +27,7 @@ export async function clockInCommand(): Promise<void> {
     console.log("✅ Clocked in.");
   } else {
     console.log("⚠️  Request sent, but you still appear clocked out. Check the Bizneo app.");
+    process.exitCode = 1;
   }
   console.log(formatStatus(state));
 }
@@ -41,10 +43,15 @@ export async function clockOutCommand(opts: { comment?: string }): Promise<void>
     return;
   }
   if (state.status === "paused") {
-    console.log("You're on a break. Resume first with `bizneo-clock resume`, then clock out.");
-    console.log(formatStatus(state));
-    await persistIfChanged(client);
-    return;
+    state = await resume(client, client.session, state);
+    if (state.status !== "working") {
+      await persistIfChanged(client);
+      console.log("⚠️  Couldn't end your break before clocking out. Check the Bizneo app.");
+      console.log(formatStatus(state));
+      process.exitCode = 1;
+      return;
+    }
+    console.log("Ended your break.");
   }
 
   state = await finish(client, client.session, state, opts.comment ?? "");
@@ -54,6 +61,7 @@ export async function clockOutCommand(opts: { comment?: string }): Promise<void>
     console.log("✅ Clocked out.");
   } else {
     console.log("⚠️  Request sent, but you still appear clocked in. Check the Bizneo app.");
+    process.exitCode = 1;
   }
   console.log(formatStatus(state));
 }
@@ -76,6 +84,7 @@ export async function resumeCommand(): Promise<void> {
     console.log("✅ Back to work.");
   } else {
     console.log("⚠️  Request sent, but you're not working yet. Check the Bizneo app.");
+    process.exitCode = 1;
   }
   console.log(formatStatus(state));
 }
