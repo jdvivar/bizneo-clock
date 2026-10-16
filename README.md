@@ -53,6 +53,7 @@ you to run `bizneo-clock login` again.
 | --- | --- | --- |
 | `bizneo-clock login [-c <company>]` | | Sign in via the browser and store the session |
 | `bizneo-clock logout` | | Remove the stored session |
+| `bizneo-clock upgrade` | `update` | Update bizneo-clock to the latest version |
 | `bizneo-clock status [--json]` | | Show whether you're working, on a break, or clocked out |
 | `bizneo-clock in` | `start` | Clock in (start work) |
 | `bizneo-clock pause [-r <id>] [--comment <text>]` | | Take a break with a reason (lunch, break…) |
@@ -69,6 +70,13 @@ Notes:
   `--reason <id>` / `--reason <list-position>` to skip the prompt.
 - After every action the tool re-reads your state from Bizneo and reports the real result
   rather than assuming the request worked.
+- **Staying up to date:** once a day, the tool checks npm in the background for a newer
+  version. When there is one, it adds a one-line notice after the command's output; run
+  `bizneo-clock upgrade` to install it. The check never slows a command down (it gives up
+  quickly if npm is slow or you're offline), and it stays quiet for `--json`, when output
+  isn't a terminal, and in CI. Set `BIZNEO_CLOCK_NO_UPDATE_CHECK=1` to turn it off.
+  `upgrade` only updates a global npm install. For any other install it shows the command
+  to run instead.
 - **Exit codes** (for scripts): `0` means you're in the requested state, either because the
   action worked or because you already were. `1` means it didn't happen: the request didn't
   take effect, or the command doesn't apply to your current state (e.g. `in` while on a
@@ -120,7 +128,11 @@ the current shift, then submits the matching request with your stored session co
 
 - Your session is stored locally at `~/.config/bizneo-clock/config.json` (permissions `600`).
 - It contains your Bizneo session cookie, company host, employee id, and the user-agent used
-  at login. Nothing is sent anywhere except to your own company's Bizneo instance.
+  at login. Your session data goes only to your own company's Bizneo instance.
+- The daily update check asks the public npm registry for the latest `bizneo-clock`
+  version. It sends no account data and caches the answer in
+  `~/.config/bizneo-clock/update-check.json`. Turn it off with
+  `BIZNEO_CLOCK_NO_UPDATE_CHECK=1`.
 - `bizneo-clock logout` deletes that file.
 
 ## Troubleshooting

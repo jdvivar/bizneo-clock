@@ -112,6 +112,7 @@ is what keeps the 30-day session alive.
 | `session.ts` | Playwright browser login + `userId` discovery |
 | `time.ts` | pure helpers: parse `data-from`, compute elapsed across a time zone, format duration |
 | `ui.ts` | status formatting + pause-reason picker |
+| `update.ts` | package version, npm "latest" lookup, daily cached update check + notice |
 | `context.ts` | `requireClient()` + persist refreshed cookies |
 | `commands/*` | one file per command group |
 
@@ -197,6 +198,25 @@ global bin path changes → re-run `install.sh`.
 `extras/macos/watch.sh` and any other automation depend on this; don't print a warning
 and exit 0.
 
+
+### 5.10 Update check: never slow, never noisy
+`startUpdateCheck()` starts alongside each command (in `cli.ts`'s `run()` wrapper) and
+`finish()` prints the notice afterwards, on **stderr**. Rules that keep it harmless:
+- At most one registry request per 24 h (`update-check.json` cache). The notice is read from
+  the cache, so it's instant.
+- A request still running when the command ends gets a 300 ms grace period and is then
+  aborted, with the cached value used instead. It never holds the process open (the 3 s
+  overall timer is `unref`'d).
+- Off for `--json`, non-TTY stderr (so `extras/macos/watch.sh` never sees it), `CI`,
+  `NO_UPDATE_NOTIFIER` and `BIZNEO_CLOCK_NO_UPDATE_CHECK`. Also off for `upgrade` itself.
+- The registry URL honours `npm_config_registry`, so mirrors work, and that's how it's
+  tested: a local fake registry.
+
+`upgrade` (alias `update`) self-updates only when the running copy *is* the global npm
+install. It compares realpaths of the package dir and `$(npm root -g)/bizneo-clock`, so
+`npm link` / dev checkouts / `npx` / other package managers get printed instructions
+instead. It runs `npm install -g bizneo-clock@<latest>` with inherited stdio, then re-reads
+the installed `package.json` to confirm the new version. It never retries with `sudo`.
 ---
 
 ## 6. macOS reminders (`extras/macos/`)
