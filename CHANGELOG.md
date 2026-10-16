@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/jdvivar/bizneo-clock/compare/v0.1.5...v0.1.6) (2026-10-16)
+
+
+### Features
+
+* add upgrade command and a daily update notice ([#9](https://github.com/jdvivar/bizneo-clock/issues/9)) ([1d57278](https://github.com/jdvivar/bizneo-clock/commit/1d57278d3d39934135478320505140dee5ed4bfd))
+
 ## [0.1.5](https://github.com/jdvivar/bizneo-clock/compare/v0.1.4...v0.1.5) (2026-10-07)
 
 
