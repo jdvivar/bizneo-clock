@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { readFileSync } from "node:fs";
 import { Command } from "commander";
 import { SessionExpiredError } from "./client.js";
 import { loginCommand } from "./commands/login.js";
@@ -7,10 +6,13 @@ import { logoutCommand } from "./commands/logout.js";
 import { statusCommand } from "./commands/status.js";
 import { clockInCommand, clockOutCommand, resumeCommand } from "./commands/clock.js";
 import { pauseCommand } from "./commands/pause.js";
+import { upgradeCommand } from "./commands/upgrade.js";
+import { currentVersion, startUpdateCheck } from "./update.js";
 
 /** Wrap a command so errors print cleanly and set a non-zero exit code. */
-function run<T extends unknown[]>(fn: (...args: T) => Promise<void>) {
+function run<T extends unknown[]>(fn: (...args: T) => Promise<void>, { updateCheck = true } = {}) {
   return async (...args: T): Promise<void> => {
+    const check = updateCheck ? startUpdateCheck(process.argv) : null;
     try {
       await fn(...args);
     } catch (err) {
@@ -24,18 +26,18 @@ function run<T extends unknown[]>(fn: (...args: T) => Promise<void>) {
         console.error("\nUnexpected error:", err);
       }
       process.exitCode = 1;
+    } finally {
+      await check?.finish();
     }
   };
 }
-
-const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };
 
 const program = new Command();
 
 program
   .name("bizneo-clock")
   .description("Clock in/out of Bizneo HR (chrono) from your terminal")
-  .version(version);
+  .version(currentVersion);
 
 program
   .command("login")
@@ -78,5 +80,11 @@ program
   .option("-r, --reason <idOrIndex>", "pause reason id or list position")
   .option("--comment <text>", "optional comment")
   .action(run(pauseCommand));
+
+program
+  .command("upgrade")
+  .aliases(["update"])
+  .description("Update bizneo-clock to the latest version")
+  .action(run(upgradeCommand, { updateCheck: false }));
 
 program.parseAsync(process.argv);

@@ -15,7 +15,7 @@ export interface Session {
   savedAt: string;
 }
 
-const CONFIG_DIR = process.env.XDG_CONFIG_HOME
+export const CONFIG_DIR = process.env.XDG_CONFIG_HOME
   ? join(process.env.XDG_CONFIG_HOME, "bizneo-clock")
   : join(homedir(), ".config", "bizneo-clock");
 

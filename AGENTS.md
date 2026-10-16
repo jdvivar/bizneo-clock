@@ -23,7 +23,7 @@ docs/DESIGN.md  design rationale, Bizneo mechanics, gotchas
 
 ```bash
 npm run build        # tsc -> dist/
-node dist/cli.js …    # run locally (login | status | in | out | pause | resume | logout)
+node dist/cli.js …    # run locally (login | status | in | out | pause | resume | logout | upgrade)
 ```
 
 There are no automated tests; verification has been done by running real commands against a
