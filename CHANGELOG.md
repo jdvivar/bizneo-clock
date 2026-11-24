@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7](https://github.com/jdvivar/bizneo-clock/compare/v0.1.6...v0.1.7) (2026-11-24)
+
+
+### Features
+
+* add one-letter shortcuts for the main commands ([#11](https://github.com/jdvivar/bizneo-clock/issues/11)) ([0f629c0](https://github.com/jdvivar/bizneo-clock/commit/0f629c0a0364aae574383fb2f01c8f232b5793d6))
+
 ## [0.1.6](https://github.com/jdvivar/bizneo-clock/compare/v0.1.5...v0.1.6) (2026-10-16)
 
 
