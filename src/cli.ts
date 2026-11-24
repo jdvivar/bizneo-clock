@@ -52,30 +52,33 @@ program
 
 program
   .command("status")
+  .aliases(["s"])
   .description("Show whether you're working, on a break, or clocked out")
   .option("--json", "output machine-readable JSON")
   .action(run(statusCommand));
 
 program
   .command("in")
-  .aliases(["start"])
+  .aliases(["i", "start"])
   .description("Clock in (start work)")
   .action(run(clockInCommand));
 
 program
   .command("resume")
+  .aliases(["r"])
   .description("Resume after a break (or clock in if fully clocked out)")
   .action(run(resumeCommand));
 
 program
   .command("out")
-  .aliases(["finish", "stop"])
+  .aliases(["o", "finish", "stop"])
   .description("Clock out (finish work), ending a break first if needed")
   .option("--comment <text>", "optional comment")
   .action(run(clockOutCommand));
 
 program
   .command("pause")
+  .aliases(["p"])
   .description("Pause work with a reason (lunch, break, …)")
   .option("-r, --reason <idOrIndex>", "pause reason id or list position")
   .option("--comment <text>", "optional comment")
@@ -83,7 +86,7 @@ program
 
 program
   .command("upgrade")
-  .aliases(["update"])
+  .aliases(["u", "update"])
   .description("Update bizneo-clock to the latest version")
   .action(run(upgradeCommand, { updateCheck: false }));
 

@@ -53,14 +53,20 @@ you to run `bizneo-clock login` again.
 | --- | --- | --- |
 | `bizneo-clock login [-c <company>]` | | Sign in via the browser and store the session |
 | `bizneo-clock logout` | | Remove the stored session |
-| `bizneo-clock upgrade` | `update` | Update bizneo-clock to the latest version |
-| `bizneo-clock status [--json]` | | Show whether you're working, on a break, or clocked out |
-| `bizneo-clock in` | `start` | Clock in (start work) |
-| `bizneo-clock pause [-r <id>] [--comment <text>]` | | Take a break with a reason (lunch, break…) |
-| `bizneo-clock resume` | | Resume after a break (or clock in if fully clocked out) |
-| `bizneo-clock out [--comment <text>]` | `finish`, `stop` | Clock out / finish work (ends a break first if you're on one) |
+| `bizneo-clock upgrade` | `u`, `update` | Update bizneo-clock to the latest version |
+| `bizneo-clock status [--json]` | `s` | Show whether you're working, on a break, or clocked out |
+| `bizneo-clock in` | `i`, `start` | Clock in (start work) |
+| `bizneo-clock pause [-r <id>] [--comment <text>]` | `p` | Take a break with a reason (lunch, break…) |
+| `bizneo-clock resume` | `r` | Resume after a break (or clock in if fully clocked out) |
+| `bizneo-clock out [--comment <text>]` | `o`, `finish`, `stop` | Clock out / finish work (ends a break first if you're on one) |
 
 Notes:
+
+- **One-letter shortcuts:** `s` status, `i` in, `o` out, `p` pause, `r` resume, `u` upgrade,
+  so `bizneo-clock s` is the same as `bizneo-clock status`. With a shell alias like
+  `alias bz=bizneo-clock`, that's `bz s`, `bz i`, `bz o`. `login` and `logout` have no
+  shortcut on purpose: you rarely need them, and a one-letter `logout` would make it too easy
+  to delete your session by mistake.
 
 - There are three states: **working**, **on a break** (paused), and **clocked out**. A break is
   not a clock-out — you leave it with `resume`, not `in`.
