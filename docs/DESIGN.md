@@ -136,11 +136,17 @@ is what keeps the 30-day session alive.
     running, so a push landing mid-override isn't waved through.
   - `claude.yml`: `@claude` mentions in issues/PRs. claude-code-action only acts for users
     with write access, which matters because the repo is public.
-- **Not reviewed: release-please PRs and fork PRs.** Release PRs are opened with
-  `GITHUB_TOKEN`, whose events don't trigger workflows (same rule as §5.4). Fork PRs get no
-  secrets. Both end up with no `Claude review` status at all. That's why the status is
-  **not** a required check. If branch protection ever requires it, release PRs would be
-  stuck until something sets the status for them (e.g. a step in `release-please.yml`).
+- **Release PRs are skipped.** Unlike releases (§5.4), release-please's PRs *do* trigger
+  `pull_request` workflows, CI included, even though they're opened with `GITHUB_TOKEN`.
+  claude-code-action refuses to run for a bot (`Workflow initiated by non-human actor:
+  github-actions`), so the review used to fail with "No score posted". The review job now
+  skips PRs opened by `github-actions[bot]` from a `release-please--` branch. They only hold
+  the version bump and a CHANGELOG built from commits that were already reviewed. Both
+  conditions are checked, so a person can't dodge the review by naming a branch.
+- **Fork PRs aren't reviewed either:** they get no secrets, so the run fails before Claude
+  starts.
+- Neither sets a `Claude review` status, which is why the status is **not** a required
+  check. If branch protection ever requires it, add a step that marks release PRs green.
 
 ---
 
