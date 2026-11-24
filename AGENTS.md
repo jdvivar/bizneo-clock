@@ -51,6 +51,12 @@ live account (with the user's consent — clock effects are seconds and get rest
   automatically via **npm Trusted Publishing** (OIDC, no `NPM_TOKEN`). `release-please.yml`
   is the only workflow registered as a trusted publisher on npmjs.com (see
   `docs/DESIGN.md` §5.3).
+- **Every PR gets a Claude review** (`.github/workflows/claude-code-review.yml`): inline
+  comments tagged `[critical]`/`[major]`/`[minor]` plus a "Confidence to merge: N/5" summary,
+  and a `Claude review` commit status that's green only at 5/5. `@claude override` (write
+  access) turns it green for the current commit. `@claude` in an issue or PR asks Claude for
+  help (`claude.yml`). The status is informational: no branch protection requires it (see
+  `docs/DESIGN.md` §4).
 - Manual/recovery publish: run `release-please.yml` by hand with **publish = true**
   (`gh workflow run release-please.yml -f publish=true`). It publishes `main`'s version.
 

@@ -125,6 +125,22 @@ is what keeps the 30-day session alive.
 - **Pre-1.0 bumps are patches** (`bump-patch-for-minor-pre-major: true`): `feat:`/`fix:` →
   patch, breaking → minor. Revisit at 1.0.
 - **`extras/` is excluded from the npm package** via `package.json` `files`.
+- **Claude PR review**, copied from the owner's `toca-app` repo and adapted. It uses three
+  workflows, all needing the `CLAUDE_CODE_OAUTH_TOKEN` secret and the Claude GitHub App:
+  - `claude-code-review.yml`: on every non-draft PR push, Claude reviews the diff against
+    `AGENTS.md` and `DESIGN.md`. It posts inline `[severity]` comments and a "Confidence to
+    merge: N/5" summary, then sets the `Claude review` status: `success` only at 5/5, and
+    `failure` if no score was posted, so a review that broke never looks clean.
+  - `claude-review-override.yml`: a `@claude override` comment from someone with write
+    access marks the current head commit green. It's refused while the review is still
+    running, so a push landing mid-override isn't waved through.
+  - `claude.yml`: `@claude` mentions in issues/PRs. claude-code-action only acts for users
+    with write access, which matters because the repo is public.
+- **Not reviewed: release-please PRs and fork PRs.** Release PRs are opened with
+  `GITHUB_TOKEN`, whose events don't trigger workflows (same rule as §5.4). Fork PRs get no
+  secrets. Both end up with no `Claude review` status at all. That's why the status is
+  **not** a required check. If branch protection ever requires it, release PRs would be
+  stuck until something sets the status for them (e.g. a step in `release-please.yml`).
 
 ---
 
