@@ -1,0 +1,41 @@
+name: Claude review override
+
+# A pull request comment starting "@claude override", from someone with write
+# access, turns the Claude review gate green for the current head commit only.
+# It needs the review to have finished on that commit, with a score or with
+# "No score posted" when the run broke. While it is still reviewing, or has not
+# started, it refuses, so a push that lands between the comment and this job is
+# never waved through unreviewed.
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  override:
+    if: >-
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '@claude override') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+      pull-requests: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.issue.number }}
+          ACTOR: ${{ github.event.comment.user.login }}
+        run: |
+          sha=$(gh pr view "$PR" -R "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid)
+          current=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/statuses" \
+            --jq '[.[] | select(.context == "Claude review")][0].description // ""')
+          if ! [[ "$current" =~ ^([1-4]/5|No\ score\ posted) ]]; then
+            gh pr comment "$PR" -R "$GITHUB_REPOSITORY" \
+              --body "Not overridden: the review of ${sha:0:7} has not finished (status: ${current:-none}). Wait for it, then comment again."
+            exit 1
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$sha" -f state=success \
+            -f context="Claude review" -f description="Overridden by $ACTOR"
+          gh pr comment "$PR" -R "$GITHUB_REPOSITORY" \
+            --body "Merge gate overridden by \`$ACTOR\` for ${sha:0:7}. A new push is reviewed again."
